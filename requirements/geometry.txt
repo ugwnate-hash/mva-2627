@@ -10,3 +10,6 @@ pyrender
 Pillow
 vtk
 xvfbwrapper
+ipygany
+nbformat
+shapely
