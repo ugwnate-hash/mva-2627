@@ -1,0 +1,6 @@
+# llm.txt
+transformers
+datasets
+accelerate
+safetensors
+tokenizers

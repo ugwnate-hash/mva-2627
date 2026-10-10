@@ -1,0 +1,3 @@
+# Probabilistic graphical models and deep generative models
+pgmpy
+pyro-ppl
