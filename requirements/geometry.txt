@@ -1,0 +1,12 @@
+# geometry.txt
+trimesh
+pyvista
+potpourri3d
+robust-laplacian
+libigl
+pythreejs
+meshplot
+pyrender
+Pillow
+vtk
+xvfbwrapper

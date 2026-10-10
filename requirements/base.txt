@@ -1,0 +1,16 @@
+# base.txt
+numpy
+scipy
+pandas
+matplotlib
+seaborn
+scikit-learn
+sympy
+networkx
+tqdm
+einops
+jupyterlab
+ipykernel
+ipywidgets
+torch
+torchvision
