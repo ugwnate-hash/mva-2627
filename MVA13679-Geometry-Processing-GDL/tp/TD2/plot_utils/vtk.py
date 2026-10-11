@@ -1,3 +1,5 @@
+import os
+
 from plot_utils.vtkviz.vtkVisualization import VTKSurface, VTKPointCloudSphere, VTKVisualization, center_mesh_give_size
 from PIL import Image, ImageFont, ImageDraw
 from xvfbwrapper import Xvfb
@@ -10,8 +12,9 @@ dir_x = np.array([1, 0, 0])
 dir_y = np.array([0, 0, 1])
 dir_z = np.array([0, 1, 0])
 
-display = Xvfb(width=1280, height=740, colordepth=16)
-display.start()
+if not os.environ.get("DISPLAY"):
+    display = Xvfb(width=1280, height=740, colordepth=16)
+    display.start()
 
 
 def euler_to_matrix(rx, ry, rz, order='XYZ'):
