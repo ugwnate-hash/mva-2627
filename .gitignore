@@ -7,3 +7,5 @@ __pycache__/
 .virtual_documents/
 MVA13679-Geometry-Processing-GDL/tp/TD2/arial.ttf
 MVA13679-Geometry-Processing-GDL/tp/TD2/results/
+# Secrets
+.env
