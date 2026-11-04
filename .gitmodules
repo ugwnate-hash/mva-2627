@@ -1,3 +1,6 @@
 [submodule "MVA3842-Probabilistic-Graphical-Models-and-Deep-Generative-Models"]
 	path = MVA3842-Probabilistic-Graphical-Models-and-Deep-Generative-Models
 	url = https://github.com/ugwnate-hash/mva-pgm.git
+[submodule "MVA12876-Geometric-Data-Analysis"]
+	path = MVA12876-Geometric-Data-Analysis
+	url = https://github.com/ugwnate-hash/mva-gda.git
