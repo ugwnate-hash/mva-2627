@@ -4,3 +4,6 @@
 [submodule "MVA12876-Geometric-Data-Analysis"]
 	path = MVA12876-Geometric-Data-Analysis
 	url = https://github.com/ugwnate-hash/mva-gda.git
+[submodule "MVA13679-Geometry-Processing-GDL/project"]
+	path = MVA13679-Geometry-Processing-GDL/project
+	url = https://github.com/ugwnate-hash/mva-gdl-project.git
