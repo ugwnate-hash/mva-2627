@@ -7,5 +7,9 @@ __pycache__/
 .virtual_documents/
 MVA13679-Geometry-Processing-GDL/tp/TD2/arial.ttf
 MVA13679-Geometry-Processing-GDL/tp/TD2/results/
+*:Zone.Identifier
+Miniforge3-*.sh
+datasets/
+
 # Secrets
 .env
