@@ -1,0 +1,78 @@
+\documentclass[a4paper]{article}
+\input{style/head.tex}
+
+%-------------------------------
+%	TITLE VARIABLES (identify your work!)
+%-------------------------------
+
+\newcommand{\yourname}{Nathan Ugwonali} % replace YOURNAME with your name
+\newcommand{\youremail}{ugw.nate@gmail.com} % replace YOUREMAIL with your email
+\newcommand{\assignmentnumber}{4} % replace X with the lab session number
+
+\begin{document}
+
+%-------------------------------
+%	TITLE SECTION (do not modify unless you really need to)
+%-------------------------------
+\input{style/header.tex}
+
+%-------------------------------
+%	ASSIGNMENT CONTENT (add your responses)
+%-------------------------------
+
+\section{Question 1}
+
+$G$ is the disjoint union of $K_{100}$ and $K_{50,50}$. Since the two components share no vertex and no edge joins them, edges and triangles can be counted separately in each component and summed.
+
+\paragraph{Number of edges.}
+In the complete graph $K_n$, every unordered pair of distinct vertices is joined by exactly one edge, so $|E(K_n)| = \binom{n}{2} = \frac{n(n-1)}{2}$. In the complete bipartite graph $K_{a,b}$, every vertex of one part is joined to every vertex of the other part and no edge lies within a part, so $|E(K_{a,b})| = ab$. Hence
+\begin{equation}
+    |E(G)| = \binom{100}{2} + 50 \times 50 = 4950 + 2500 = 7450.
+\end{equation}
+
+\paragraph{Number of triangles.}
+A triangle is a set of three pairwise adjacent vertices. It is connected, so it lies entirely within one connected component.
+\begin{itemize}
+    \item In $K_{100}$, any three distinct vertices are pairwise adjacent, so every 3-subset of vertices forms a triangle. This gives $\binom{100}{3} = \frac{100 \cdot 99 \cdot 98}{6} = 161700$ triangles.
+    \item In $K_{50,50}$, any three vertices are distributed over only two parts, so by the pigeonhole principle at least two of them lie in the same part. These two are not adjacent, so no three vertices are pairwise adjacent and there are $0$ triangles. Equivalently, a bipartite graph contains no odd cycle, and a triangle is a cycle of length 3.
+\end{itemize}
+Hence
+\begin{equation}
+    t(G) = \binom{100}{3} + 0 = 161700.
+\end{equation}
+
+\section{Question 2}
+
+\paragraph{Smallest eigenvalue and its eigenvector.}
+Let $\mathbf{1}\in\mathbb{R}^m$ be the all-ones vector. Each row of $D^{-1}A$ sums to $\frac{1}{d_i}\sum_j A_{ij} = 1$, so $D^{-1}A\mathbf{1}=\mathbf{1}$ and
+\begin{equation}
+    L_{rw}\mathbf{1} = \mathbf{1} - D^{-1}A\mathbf{1} = 0.
+\end{equation}
+Hence $\mathbf{1}$ is an eigenvector of $L_{rw}$ with eigenvalue $0$. This is the smallest eigenvalue. Indeed, $L_{rw} = D^{-1/2}L_{sym}D^{1/2}$ with $L_{sym}=D^{-1/2}(D-A)D^{-1/2}$ symmetric, so the eigenvalues of $L_{rw}$ are real, and $L_{rw}u=\lambda u$ is equivalent to $(D-A)u=\lambda Du$. Multiplying by $u^\top$ gives
+\begin{equation}
+    \lambda\, u^\top D u = u^\top (D-A) u = \frac{1}{2}\sum_{i,j} A_{ij}(u_i-u_j)^2 \geq 0,
+\end{equation}
+and $u^\top D u>0$ since every node of a connected graph (with at least two nodes) has positive degree, so $\lambda\geq 0$. Moreover, $\lambda=0$ if and only if $u_i=u_j$ for every edge $(i,j)$. Since the graph is connected, any two nodes are joined by a path, so $u$ is constant on all nodes. The eigenvalue $0$ is therefore simple, and the corresponding eigenvector is the constant vector $u_1 = c\,\mathbf{1}$, $c\neq 0$.
+
+Intuitively, the eigenvectors of eigenvalue $0$ encode the connected components of the graph: with $p$ components, the indicator vectors of the components span this eigenspace. For a connected graph there is a single component, so $u_1$ describes the trivial partition into one cluster and maps every node to the same value.
+
+\paragraph{Effect of ignoring this eigenvector.}
+The first column of $U$ adds the same coordinate $c$ to every row $y_i$, so it does not change any pairwise distance: $\|y_i-y_j\|^2$ is identical with or without it. The $k$-means objective, the sum of squared distances to the cluster means, is invariant under such a translation, so $k$-means returns the same partition. Ignoring $u_1$ therefore has \emph{no effect} on the clustering: it carries no information that can separate nodes. If instead it is replaced by the next eigenvector $u_{d+1}$, keeping $d$ dimensions, the embedding gains an informative direction, which can change, and typically improve, the clustering.
+
+\section{Question 3}
+% TODO
+
+\section{Question 4}
+% TODO
+
+\section{Question 5}
+% TODO
+
+%------------------------------------------------
+
+% Uncomment the two lines below once you cite something with \cite{...}
+% (BibTeX fails on an empty bibliography).
+% \bibliographystyle{plain}
+% \bibliography{references} % citation records are in the references.bib document
+
+\end{document}
