@@ -6,7 +6,7 @@
 %-------------------------------
 
 \newcommand{\yourname}{Nathan Ugwonali} % replace YOURNAME with your name
-\newcommand{\youremail}{ugw.nate@gmail.com} % replace YOUREMAIL with your email
+\newcommand{\youremail}{nathan.ugwonali@ens-paris-saclay.fr} % replace YOUREMAIL with your email
 \newcommand{\assignmentnumber}{4} % replace X with the lab session number
 
 \begin{document}
@@ -60,13 +60,46 @@ Intuitively, the eigenvectors of eigenvalue $0$ encode the connected components 
 The first column of $U$ adds the same coordinate $c$ to every row $y_i$, so it does not change any pairwise distance: $\|y_i-y_j\|^2$ is identical with or without it. The $k$-means objective, the sum of squared distances to the cluster means, is invariant under such a translation, so $k$-means returns the same partition. Ignoring $u_1$ therefore has \emph{no effect} on the clustering: it carries no information that can separate nodes. If instead it is replaced by the next eigenvector $u_{d+1}$, keeping $d$ dimensions, the embedding gains an informative direction, which can change, and typically improve, the clustering.
 
 \section{Question 3}
-% TODO
+
+Both partitions are on the same graph, with edges $\{1,2\}$, $\{1,3\}$, $\{1,4\}$, $\{2,3\}$, $\{3,4\}$, $\{4,5\}$, $\{5,6\}$, $\{6,7\}$, $\{6,8\}$, $\{6,9\}$, $\{7,8\}$, $\{7,9\}$, $\{8,9\}$, so $m=13$ and $2m=26$. The node degrees are $d_6=4$, $d_2=d_5=2$, and $3$ for every other node.
+
+\begin{center}
+\begin{tabular}{c|c|c|c}
+    Partition & Cluster (nodes) & $l_c$ & $d_c$ \\
+    \hline
+    (a) & green $\{1,2,3,4,5\}$ & 6 & 13 \\
+        & blue $\{6,7,8,9\}$ & 6 & 13 \\
+    \hline
+    (b) & green $\{1,2,8,9\}$ & 2 & 11 \\
+        & blue $\{3,4,5,6,7\}$ & 4 & 15 \\
+\end{tabular}
+\end{center}
+
+\begin{align}
+    Q_a &= \frac{6}{13} - \left(\frac{13}{26}\right)^2 + \frac{6}{13} - \left(\frac{13}{26}\right)^2 = \frac{12}{13} - \frac{1}{2} = \frac{11}{26} \approx 0.42, \\
+    Q_b &= \frac{2}{13} - \left(\frac{11}{26}\right)^2 + \frac{4}{13} - \left(\frac{15}{26}\right)^2 = \frac{312}{676} - \frac{346}{676} = -\frac{17}{338} \approx -0.05.
+\end{align}
+
+Partition (a) is the better one. It maximises the interactions between members of the same cluster: only the edge $\{5,6\}$ is cut, so $l_c$ is large ($12$ of the $13$ edges are internal). It also distributes the node degrees evenly between the two clusters ($d_c=13$ for both), which minimises the penalty term $\sum_c (d_c/2m)^2$ (its minimum is $1/2$ for two clusters). Partition (a) matches the visible structure of the graph: two dense blocks joined by the path $4$--$5$--$6$. Partition (b) cuts $7$ of the $13$ edges and has unbalanced degree sums. Its modularity is negative: there are fewer intra-cluster edges than expected in a random graph with the same degrees, so it is worse than a random partition.
 
 \section{Question 4}
-% TODO
+
+Entry $d$ of $\phi(G)$ counts the unordered pairs of nodes at shortest-path distance $d$. In $C_4$, the $4$ adjacent pairs are at distance $1$ and the $2$ opposite pairs at distance $2$. In $P_4$, there are $3$ pairs at distance $1$, $2$ at distance $2$ and $1$ at distance $3$. Hence
+\begin{equation}
+    \phi(C_4) = [4, 2, 0], \qquad \phi(P_4) = [3, 2, 1],
+\end{equation}
+and, with $k(G,G') = \langle \phi(G), \phi(G') \rangle$,
+\begin{align}
+    k(C_4, C_4) &= 4^2 + 2^2 = 20, \\
+    k(C_4, P_4) &= 4\cdot 3 + 2\cdot 2 + 0\cdot 1 = 16, \\
+    k(P_4, P_4) &= 3^2 + 2^2 + 1^2 = 14.
+\end{align}
 
 \section{Question 5}
-% TODO
+
+We take $f_G$ to be the exact graphlet counts, i.e.\ $f_G(i)$ is the number of 3-node subsets of $G$ whose induced subgraph is isomorphic to $\text{graphlet}_i$; sampling only approximates these counts. Since $f_G, f_{G'} \in \mathbb{N}^4$, every term of $k(G,G') = \sum_{i=1}^4 f_G(i)\, f_{G'}(i)$ is non-negative. So $k(G,G')=0$ if and only if $f_G(i)\,f_{G'}(i)=0$ for every $i$: $G$ and $G'$ share no common graphlet, since any graphlet found in both would make one coordinate product, and hence the kernel, strictly positive.
+
+\paragraph{Example.} Take two distinct graphlets of Figure 4, e.g.\ $G=\text{graphlet}_1$ (empty graph on 3 nodes) and $G'=\text{graphlet}_4$ (triangle). Each has a single 3-node subset, which induces $\text{graphlet}_1$ in $G$ and $\text{graphlet}_4$ in $G'$, so $f_G=[1,0,0,0]$, $f_{G'}=[0,0,0,1]$ and $k(G,G')=0$.
 
 %------------------------------------------------
 

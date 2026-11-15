@@ -4,7 +4,7 @@ Graph Mining - ALTEGRAD - Nov 2024
 
 import networkx as nx
 import numpy as np
-from scipy.sparse.linalg import eigs
+from scipy.sparse.linalg import eigs, eigsh
 from scipy.sparse import diags, eye
 from random import randint
 from sklearn.cluster import KMeans
@@ -56,22 +56,37 @@ G.remove_edges_from(list(nx.selfloop_edges(G)))
 connected_components = [c for c in nx.connected_components(G)]
 gcc_nodes_list = list(max(connected_components, key=len))
 gcc = nx.subgraph(G, gcc_nodes_list)
-clustering = spectral_clustering(gcc,50)
 
+k = 50
+clustering = spectral_clustering(gcc,k)
+# print(clustering)
 
 ############## Task 5
 # Compute modularity value from graph G based on clustering
 def modularity(G, clustering):
     
     ##################
-    # your code here #
+    # your code here #  
     ##################
     
-    
-    
-    
-    return modularity
+    m = len(list(G.edges()))
+    clusters = set(clustering.values())
+    Q = 0
+    # cluster --> nodes
+    for cluster in clusters:
+        l = 0
+        d = 0
+        for node in clustering:
+            if clustering[node] == cluster:
+                for neighbor in G.neighbors(node):
+                    if clustering[neighbor] == cluster:
+                        l += 1
+                d += G.degree(node)
+        l = l/2 # Cause a edges is counted twice
+        Q += l/m - (d/2/m)**2
+    return Q
 
+print(f"Modularity of subgraph gcc: {modularity(G=gcc, clustering=clustering)}")
 
 
 ############## Task 6
@@ -80,6 +95,12 @@ def modularity(G, clustering):
 # your code here #
 ##################
 
+# Random clustering
+clustering_random = {}
+for node in clustering:
+    clustering_random[node] = randint(0,k-1)
+
+print(f"Modularity of subgraph gcc but with random clusters: {modularity(G=gcc, clustering=clustering_random)}")
 
 
 

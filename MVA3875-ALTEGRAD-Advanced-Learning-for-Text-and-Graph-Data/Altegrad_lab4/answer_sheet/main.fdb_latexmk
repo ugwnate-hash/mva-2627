@@ -1,7 +1,7 @@
 # Fdb version 4
-["pdflatex"] 1794417790.39026 "/home/ugwna/mva-2627/MVA3875-ALTEGRAD-Advanced-Learning-for-Text-and-Graph-Data/Altegrad_lab4/answer_sheet/main.tex" "main.pdf" "main" 1794417790.63668 0
+["pdflatex"] 1794733984.04256 "/home/ugwna/mva-2627/MVA3875-ALTEGRAD-Advanced-Learning-for-Text-and-Graph-Data/Altegrad_lab4/answer_sheet/main.tex" "main.pdf" "main" 1794733984.29187 0
   "/etc/texmf/web2c/texmf.cnf" 1794151504.39299 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/ugwna/mva-2627/MVA3875-ALTEGRAD-Advanced-Learning-for-Text-and-Graph-Data/Altegrad_lab4/answer_sheet/main.tex" 1794417789.87054 4747 7e502ec49831fa36198f3df7b2114c5b ""
+  "/home/ugwna/mva-2627/MVA3875-ALTEGRAD-Advanced-Learning-for-Text-and-Graph-Data/Altegrad_lab4/answer_sheet/main.tex" 1794733983.89406 7866 08784464fbc5888758f3b26cb22bf546 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/bitstrea/charter/bchb7t.tfm" 1136768653 2732 006d846b4d54f9b40899c7c3eecd771a ""
@@ -32,6 +32,7 @@
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb" 1248133631 35752 024fb6c41858982481f6968b5fc26508 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb" 1248133631 32762 224316ccc9ad3ca0423a14971cfa7fc1 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1248133631 32569 5e5ddc8df908dea60932f3c484a54c0d ""
+  "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb" 1248133631 32915 7bf7720c61a5b3a7ff25b0964421c9b6 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb" 1248133631 32716 08e384dc442464e7285e891af9f45947 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb" 1248133631 34694 ad62b13721ee8eda1dcc8993c8bd7041 ""
   "/usr/share/texlive/texmf-dist/fonts/vf/bitstrea/charter/bchb7t.vf" 1136768653 1372 e6cfde23c168b1d1864ce6aa6dffa18b ""
@@ -120,9 +121,9 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1769369718 41603 27f93b3067076450172040dcd57ca8b3 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1794151509 165211 6b08d096f3d0fe5ff6b266061a2b45e0 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1794151522 2265651 c11e72758afb39ab6cca5fe9e0d712ce ""
-  "main.aux" 1794417790.60872 1149 ae4f2962dfae9bbe9e4eac1f93dacb91 "pdflatex"
-  "main.out" 1794417790.60872 480 2e033e930054871ca2b0e8f90cbffd6d "pdflatex"
-  "main.tex" 1794417789.87054 4747 7e502ec49831fa36198f3df7b2114c5b ""
+  "main.aux" 1794733984.26021 1242 18af20197cbf229eaa7878f8cbba7089 "pdflatex"
+  "main.out" 1794733984.26021 480 2e033e930054871ca2b0e8f90cbffd6d "pdflatex"
+  "main.tex" 1794733983.89406 7866 08784464fbc5888758f3b26cb22bf546 ""
   "style/head.tex" 1794396611.90863 1427 54cec518773b64afc31abf85ab4b8819 ""
   "style/header.tex" 1794396611.90865 376 0fb720caac1d4fba0e8f0658d5741f8b ""
   (generated)

@@ -7,6 +7,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
+from pathlib import Path
 from torch_geometric.datasets import TUDataset
 from torch_geometric.utils import to_networkx
 
@@ -19,10 +20,12 @@ def load_dataset():
     ##################
     # your code here #
     ##################
-
+    path_to_data_folder = Path(__file__).resolve().parent.parent
+    path_to_data = path_to_data_folder/"datasets"
+    dataset = TUDataset(root=str(path_to_data), name="MUTAG")
     y = [data.y.item() for data in dataset]
+    Gs = [to_networkx(data, to_undirected=True) for data in dataset]
     return Gs, y
-
 
 Gs,y = load_dataset()
 
@@ -106,17 +109,33 @@ def graphlet_kernel(Gs_train, Gs_test, n_samples=200):
     graphlets[3].add_edge(0,2)
 
     
-    phi_train = np.zeros((len(G_train), 4))
+    phi_train = np.zeros((len(Gs_train), 4))
     
     ##################
     # your code here #
     ##################
+    for i, graph in enumerate(Gs_train):
+        for k in range(n_samples):
+            nodes = list(graph.nodes)
+            three_nodes = np.random.choice(nodes, size=3, replace=False) 
+            sub_graph = graph.subgraph(three_nodes)
+            for j in range(len(graphlets)):
+                if nx.is_isomorphic(sub_graph, graphlets[j]):
+                    phi_train[i,j] += 1
 
-    phi_test = np.zeros((len(G_test), 4))
+    phi_test = np.zeros((len(Gs_test), 4))
     
     ##################
     # your code here #
     ##################
+    for i, graph in enumerate(Gs_test):
+            for k in range(n_samples):
+                nodes = list(graph.nodes)
+                three_nodes = np.random.choice(nodes, size=3, replace=False) 
+                sub_graph = graph.subgraph(three_nodes)
+                for j in range(len(graphlets)):
+                    if nx.is_isomorphic(sub_graph, graphlets[j]):
+                        phi_test[i,j] += 1
 
     K_train = np.dot(phi_train, phi_train.T)
     K_test = np.dot(phi_test, phi_train.T)
@@ -125,8 +144,7 @@ def graphlet_kernel(Gs_train, Gs_test, n_samples=200):
 
 
 K_train_sp, K_test_sp = shortest_path_kernel(G_train, G_test)
-
-
+print("Kernel matrixes for shortest path computed")
 
 ############## Task 9
 
@@ -134,10 +152,22 @@ K_train_sp, K_test_sp = shortest_path_kernel(G_train, G_test)
 # your code here #
 ##################
 
-
+K_train_gl, K_test_gl = graphlet_kernel(G_train, G_test)
+print("Kernel matrixes for graphlet computed")
 
 ############## Task 10
 
 ##################
 # your code here #
 ##################
+
+clf_gl = SVC(kernel="precomputed")
+clf_gl.fit(K_train_gl, y_train)
+y_pred_gl = clf_gl.predict(K_test_gl)
+print(accuracy_score(y_test, y_pred_gl))
+
+clf_sp = SVC(kernel="precomputed")
+clf_sp.fit(K_train_sp, y_train)
+y_pred_sp = clf_sp.predict(K_test_sp)
+print(accuracy_score(y_test, y_pred_sp))
+
