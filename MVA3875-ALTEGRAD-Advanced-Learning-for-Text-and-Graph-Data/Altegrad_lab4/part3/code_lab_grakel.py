@@ -200,7 +200,7 @@ print("Accuracy:", accuracy_score(y_pred_hada, y_test))
 
 # Accuracy for WL kernel: 0.962
 # Accuracy for HadamardCode kernel: can't be computed
-# Compting Hadamard Code kernel takes much more memory as it computes!
+# Computing Hadamard Code kernel takes much more memory!
 # It leads to a killed process on my laptop. 
 # Indeed, it computes a Hadamard Matrix of size N = "the number of distinct label in the graph"
 # It represents N**2 entries which is enormous... 
