@@ -13,3 +13,6 @@ datasets/
 
 # Secrets
 .env
+
+# ALTEGRAD: Windows Zone.Identifier files (WSL stores ":" as U+F03A)
+MVA3875-ALTEGRAD-Advanced-Learning-for-Text-and-Graph-Data/**/*Zone.Identifier
