@@ -10,9 +10,14 @@ MVA13679-Geometry-Processing-GDL/tp/TD2/results/
 *:Zone.Identifier
 Miniforge3-*.sh
 datasets/
+.pytest_cache/
 
 # Secrets
 .env
 
 # ALTEGRAD: Windows Zone.Identifier files (WSL stores ":" as U+F03A)
 MVA3875-ALTEGRAD-Advanced-Learning-for-Text-and-Graph-Data/**/*Zone.Identifier
+
+# Foundations of LLMs project: build artifacts (the corpus itself lives in ~/.cache/huggingface)
+MVA15162-Fondements-des-grands-modeles-de-langage/**/*Zone.Identifier
+MVA15162-Fondements-des-grands-modeles-de-langage/project/*.zip

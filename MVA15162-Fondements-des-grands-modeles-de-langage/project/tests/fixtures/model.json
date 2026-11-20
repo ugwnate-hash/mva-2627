@@ -1,0 +1,159 @@
+{
+ "rope_other_base": 100.0,
+ "attention_windows": [
+  1,
+  2,
+  4
+ ],
+ "lm": {
+  "lm_small": {
+   "config": {
+    "vocab_size": 20,
+    "d_model": 16,
+    "n_layers": 1,
+    "n_heads": 4,
+    "d_mlp": 32,
+    "attn_window": 0
+   },
+   "cuts": [
+    1,
+    2
+   ],
+   "shapes": {
+    "embed.weight": [
+     20,
+     16
+    ],
+    "blocks.0.norm1.weight": [
+     16
+    ],
+    "blocks.0.attn.q.weight": [
+     16,
+     16
+    ],
+    "blocks.0.attn.k.weight": [
+     16,
+     16
+    ],
+    "blocks.0.attn.v.weight": [
+     16,
+     16
+    ],
+    "blocks.0.attn.out.weight": [
+     16,
+     16
+    ],
+    "blocks.0.norm2.weight": [
+     16
+    ],
+    "blocks.0.mlp.up.weight": [
+     32,
+     16
+    ],
+    "blocks.0.mlp.down.weight": [
+     16,
+     32
+    ],
+    "norm.weight": [
+     16
+    ],
+    "unembed.weight": [
+     20,
+     16
+    ]
+   }
+  },
+  "lm_deep": {
+   "config": {
+    "vocab_size": 24,
+    "d_model": 24,
+    "n_layers": 2,
+    "n_heads": 2,
+    "d_mlp": 40,
+    "attn_window": 2
+   },
+   "cuts": [
+    1,
+    5
+   ],
+   "shapes": {
+    "embed.weight": [
+     24,
+     24
+    ],
+    "blocks.0.norm1.weight": [
+     24
+    ],
+    "blocks.0.attn.q.weight": [
+     24,
+     24
+    ],
+    "blocks.0.attn.k.weight": [
+     24,
+     24
+    ],
+    "blocks.0.attn.v.weight": [
+     24,
+     24
+    ],
+    "blocks.0.attn.out.weight": [
+     24,
+     24
+    ],
+    "blocks.0.norm2.weight": [
+     24
+    ],
+    "blocks.0.mlp.up.weight": [
+     40,
+     24
+    ],
+    "blocks.0.mlp.down.weight": [
+     24,
+     40
+    ],
+    "blocks.1.norm1.weight": [
+     24
+    ],
+    "blocks.1.attn.q.weight": [
+     24,
+     24
+    ],
+    "blocks.1.attn.k.weight": [
+     24,
+     24
+    ],
+    "blocks.1.attn.v.weight": [
+     24,
+     24
+    ],
+    "blocks.1.attn.out.weight": [
+     24,
+     24
+    ],
+    "blocks.1.norm2.weight": [
+     24
+    ],
+    "blocks.1.mlp.up.weight": [
+     40,
+     24
+    ],
+    "blocks.1.mlp.down.weight": [
+     24,
+     40
+    ],
+    "norm.weight": [
+     24
+    ],
+    "unembed.weight": [
+     24,
+     24
+    ]
+   }
+  }
+ },
+ "mha": {
+  "d_model": 16,
+  "n_heads": 2,
+  "rope_base": 10000.0
+ }
+}

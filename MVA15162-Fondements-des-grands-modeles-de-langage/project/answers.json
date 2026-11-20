@@ -1,0 +1,15 @@
+{
+ "codon_length": null,
+ "synonyms": [],
+ "generic": {
+  "accuracy_by_window": {"1": null, "2": null, "3": null, "full": null}
+ },
+ "focused": {
+  "memorization_step": null,
+  "generalization_step": null,
+  "key_frequencies": []
+ },
+ "p": null,
+ "rule": {"a": null, "b": null, "c": null},
+ "labels": {}
+}

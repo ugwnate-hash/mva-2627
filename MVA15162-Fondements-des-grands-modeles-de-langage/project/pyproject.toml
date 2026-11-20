@@ -1,0 +1,24 @@
+[project]
+name = "alien-genome-homework"
+version = "1.0.0"
+description = "Homework of the course Foundations of Large Language Models (Master MVA): the alien genome"
+requires-python = ">=3.11"
+dependencies = [
+    "huggingface-hub>=0.30",
+    "matplotlib>=3.9",
+    "numpy>=1.26",
+    "safetensors>=0.4",
+    "tokenizers>=0.20",
+    "torch>=2.4",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.uv]
+package = false  # the code is used in place, from the root of the project
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
