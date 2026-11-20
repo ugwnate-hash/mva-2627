@@ -46,8 +46,8 @@ y = np.array(y)
 n_class = 2
 
 ############## Task 3
-adj = # your code here #
-features = # your code here #
+adj = nx.adjacency_matrix(G) # your code here #
+features = np.random.randn(n, 5)# your code here #
 
 # Yields indices to split data into training and test sets
 idx = np.random.RandomState(seed=42).permutation(n)
@@ -70,7 +70,7 @@ for epoch in range(epochs):
     t = time.time()
     model.train()
     optimizer.zero_grad()
-    output = model(features, adj)
+    output, alpha = model(features, adj)
     loss_train = F.nll_loss(output[idx_train], y[idx_train])
     acc_train = accuracy_score(torch.argmax(output[idx_train], dim=1).detach().cpu().numpy(), y[idx_train].cpu().numpy())
     loss_train.backward()
@@ -85,7 +85,7 @@ print("Optimization Finished!")
 
 # Testing
 model.eval()
-output = model(features, adj)
+output, alpha = model(features, adj)
 loss_test = F.nll_loss(output[idx_test], y[idx_test])
 acc_test = accuracy_score(torch.argmax(output[idx_test], dim=1).detach().cpu().numpy(), y[idx_test].cpu().numpy())
 print("Test set results:",
@@ -94,7 +94,7 @@ print("Test set results:",
 
 
 ############## Task 4
-alpha = # your code here #
+alpha = alpha.detach().cpu().numpy()# your code here #
 
 # Dictionary that maps indices of nodes to nodes
 idx_to_node = dict()

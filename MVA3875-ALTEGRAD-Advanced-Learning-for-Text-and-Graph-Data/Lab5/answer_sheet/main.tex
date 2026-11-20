@@ -1,0 +1,70 @@
+\documentclass[a4paper]{article}
+\input{style/head.tex}
+
+%-------------------------------
+%	TITLE VARIABLES (identify your work!)
+%-------------------------------
+
+\newcommand{\yourname}{Nathan Ugwonali} % replace YOURNAME with your name
+\newcommand{\youremail}{nathan.ugwonali@ens-paris-saclay.fr} % replace YOUREMAIL with your email
+\newcommand{\assignmentnumber}{5} % replace X with the lab session number
+
+\begin{document}
+
+%-------------------------------
+%	TITLE SECTION (do not modify unless you really need to)
+%-------------------------------
+\input{style/header.tex}
+
+%-------------------------------
+%	ASSIGNMENT CONTENT (add your responses)
+%-------------------------------
+
+\section{Question 1}
+
+$z_1^{(2)} = z_4^{(2)}$.
+
+\paragraph{Derivation.} Let $W$, $a$ be the weights of the second layer and write the raw score and the update as
+\begin{equation}
+    e_{ij} = \text{LeakyReLU}\big(a^\top [W z_i^{(1)} \| W z_j^{(1)}]\big), \qquad
+    \alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k \in \mathcal{N}(v_i)} \exp(e_{ik})}, \qquad z_i^{(2)} = \sum_{j \in \mathcal{N}(v_i)} \alpha_{ij} W z_j^{(1)} .
+\end{equation}
+For $v_1$, with $\mathcal{N}(v_1) = \{v_2, v_3\}$,
+\begin{equation}
+    \alpha_{12} = \frac{e^{e_{12}}}{e^{e_{12}} + e^{e_{13}}}, \qquad
+    \alpha_{13} = \frac{e^{e_{13}}}{e^{e_{12}} + e^{e_{13}}}, \qquad
+    z_1^{(2)} = \alpha_{12} W z_2^{(1)} + \alpha_{13} W z_3^{(1)} .
+\end{equation}
+For $v_4$, with $\mathcal{N}(v_4) = \{v_2, v_3, v_5, v_6\}$: each $e_{ij}$ depends only on $z_i^{(1)}$ and $z_j^{(1)}$, so $z_4^{(1)} = z_1^{(1)}$, $z_6^{(1)} = z_2^{(1)}$ and $z_5^{(1)} = z_3^{(1)}$ give
+\begin{equation}
+    e_{42} = e_{46} = e_{12}, \qquad e_{43} = e_{45} = e_{13} .
+\end{equation}
+The softmax denominator of $v_4$ is therefore $2\big(e^{e_{12}} + e^{e_{13}}\big)$, twice that of $v_1$, hence
+\begin{equation}
+    \alpha_{42} = \alpha_{46} = \frac{\alpha_{12}}{2}, \qquad \alpha_{43} = \alpha_{45} = \frac{\alpha_{13}}{2},
+\end{equation}
+and
+\begin{equation}
+    z_4^{(2)} = \frac{\alpha_{12}}{2}\big(W z_2^{(1)} + W z_6^{(1)}\big) + \frac{\alpha_{13}}{2}\big(W z_3^{(1)} + W z_5^{(1)}\big)
+    = \alpha_{12} W z_2^{(1)} + \alpha_{13} W z_3^{(1)} = z_1^{(2)} .
+\end{equation}
+If the layer is followed by an activation $f$ (as in the GNN of Section 3.2), the equality still holds since $f$ is applied to the same vector.
+
+\paragraph{Why.} The attention coefficients of each node are a softmax over its neighbours and sum to $1$, so the layer computes a \emph{weighted mean} of the neighbours' messages. The neighbourhood of $v_4$, seen as the multiset of representations $\{z_2, z_2, z_3, z_3\}$, is that of $v_1$, $\{z_2, z_3\}$, with every element duplicated: the proportions are identical. Duplicating neighbours doubles each exponentiated score but also the denominator, so the weights halve and the aggregate is unchanged. The layer thus cannot distinguish $v_1$ from $v_4$ although $v_4$ has twice as many neighbours: degree information is lost. A sum aggregator, as in GIN~\cite{xu2019powerful}, would give $2\,z_1^{(2)}$ for $v_4$ in this setting and separate the two nodes.
+
+
+\section{Question 2}
+
+
+\section{Question 3}
+
+
+\section{Question 4}
+
+
+%------------------------------------------------
+
+\bibliographystyle{plain}
+\bibliography{references} % citation records are in the references.bib document
+
+\end{document}
