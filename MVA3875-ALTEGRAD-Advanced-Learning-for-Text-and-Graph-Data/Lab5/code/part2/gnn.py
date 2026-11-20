@@ -59,6 +59,29 @@ for epoch in range(epochs):
         # your code here #
         ##################
         
+        N_nodes = 0
+        if i + batch_size <= N_train:
+            bound = i + batch_size
+        else:
+            bound = N_train
+
+        for j in range(i, bound):
+            adj_batch.append(nx.adjacency_matrix(G_train[j]))
+            y_batch.append(y_train[j])
+            for node in list(G_train[j].nodes):
+                idx_batch.append(j % batch_size)
+            N_nodes += len(list(G_train[j].nodes))
+
+        features_batch = np.ones([N_nodes, 1], dtype=np.float32) 
+        adj_batch = sp.block_diag(adj_batch) + sp.eye(sp.block_diag(adj_batch).shape[0])
+        idx_batch = np.asarray(idx_batch)
+        y_batch = np.asarray(y_batch)
+
+        features_batch = torch.from_numpy(features_batch).to(device)
+        adj_batch = sparse_mx_to_torch_sparse_tensor(adj_batch).to(device)
+        idx_batch = torch.from_numpy(idx_batch).to(device)
+        y_batch = torch.from_numpy(y_batch).to(device)
+
         optimizer.zero_grad()
         output = model(features_batch, adj_batch, idx_batch)
         loss = loss_function(output, y_batch)
@@ -92,7 +115,30 @@ for i in range(0, N_test, batch_size):
     ##################
     # your code here #
     ##################
+    
+    N_nodes = 0
+    if i + batch_size <= N_test:
+        bound = i + batch_size
+    else:
+        bound = N_test
 
+    for j in range(i, bound):
+        adj_batch.append(nx.adjacency_matrix(G_test[j]))
+        y_batch.append(y_test[j])
+        for node in list(G_test[j].nodes):
+            idx_batch.append(j % batch_size)
+        N_nodes += len(list(G_test[j].nodes))
+
+    features_batch = np.ones([N_nodes, 1], dtype=np.float32) 
+    adj_batch = sp.block_diag(adj_batch) + sp.eye(sp.block_diag(adj_batch).shape[0])
+    idx_batch = np.asarray(idx_batch)
+    y_batch = np.asarray(y_batch)
+
+    features_batch = torch.from_numpy(features_batch).to(device)
+    adj_batch = sparse_mx_to_torch_sparse_tensor(adj_batch).to(device)
+    idx_batch = torch.from_numpy(idx_batch).to(device)
+    y_batch = torch.from_numpy(y_batch).to(device)
+    
     output = model(features_batch, adj_batch, idx_batch)
     loss = loss_function(output, y_batch)
     test_loss += loss.item() * output.size(0)

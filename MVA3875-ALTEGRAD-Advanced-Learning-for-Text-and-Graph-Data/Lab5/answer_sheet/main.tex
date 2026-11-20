@@ -55,11 +55,41 @@ If the layer is followed by an activation $f$ (as in the GNN of Section 3.2), th
 
 \section{Question 2}
 
+No. Suppose all rows of $X$ are equal to some vector $x$. In the first layer, $W x_i = W x$ for every node, so all scores $e_{ij}$ are equal and the softmax gives uniform weights $\alpha_{ij} = 1/|\mathcal{N}(v_i)|$. Every node then receives
+\begin{equation}
+    z_i^{(1)} = f\Big(\sum_{j \in \mathcal{N}(v_i)} \frac{1}{|\mathcal{N}(v_i)|}\, W x\Big) = f(W x),
+\end{equation}
+so the representations are still identical after the first layer and, by the same argument, after the second one and the fully-connected layer. Because the attention weights form a convex combination, not even the degree of a node is captured. All nodes receive the same output distribution and hence the same predicted class: the model reduces to a constant classifier, and its accuracy is the proportion of the predicted class in the test set, regardless of training.
+
+We verified this empirically by replacing the random features with a matrix of ones in \texttt{gnn\_karate.py}: over 3 runs, the model predicts class 1 for all 7 test nodes (4 of class 0, 3 of class 1), giving a test accuracy of $3/7 \approx 0.43$, against $1.00$ with random features. Random features act as (approximately) unique node identifiers that break this symmetry and let the model use the graph structure to separate the two communities.
+
 
 \section{Question 3}
 
+\begin{center}
+\begin{tabular}{c|c|c|c}
+     & sum & mean & max \\
+    \hline
+    $z_{G_1}$ & $[2.9,\ 2.3,\ 1.9]$ & $[0.97,\ 0.77,\ 0.63]$ & $[2.2,\ 1.8,\ 1.5]$ \\
+    $z_{G_2}$ & $[3.4,\ 1.9,\ 4.3]$ & $[0.85,\ 0.48,\ 1.08]$ & $[2.2,\ 1.8,\ 1.5]$ \\
+    $z_{G_3}$ & $[1.8,\ 1.2,\ 1.6]$ & $[0.90,\ 0.60,\ 0.80]$ & $[2.2,\ 1.8,\ 1.5]$ \\
+\end{tabular}
+\end{center}
+
+The max readout maps the three graphs to the same vector, so it cannot distinguish them at all: in each column, the maximum ($2.2$, $1.8$, $1.5$) is reached by a node of every graph. Mean and sum both yield three distinct vectors here, but the sum distinguishes the graphs best: its representations are the most spread apart, and it additionally encodes the number of nodes, which the mean discards. In general, the mean cannot separate a multiset of node representations from the same multiset with every element repeated (cf.\ Question~1), and the max only retains the set of distinct values, whereas the sum is injective on a much larger class of multisets, which makes it the most expressive of the three readouts~\cite{xu2019powerful}.
+
 
 \section{Question 4}
+
+$z_{G_2} = 2\, z_{G_1}$.
+
+$C_4$ and $C_8$ are both 2-regular and all node features equal $1$, so every row of $\tilde{A} = A + I$ contains exactly three ones. We show by induction that, within and across both graphs, all nodes have the same representation after every layer. If all rows of $Z$ are equal to a row vector $r$, then each row of $\tilde{A} Z$ is $3r$, so all rows of $\tilde{A} Z W$ equal $3rW$, and applying the same element-wise ReLU keeps them identical. Starting from $X = \mathbf{1}$, every row of $Z^{(2)}$ is therefore the same vector $h$ in both graphs (the biases of the linear layers do not change this argument). The sum readout then gives
+\begin{equation}
+    z_{G_1} = \sum_{i=1}^{4} h = 4h, \qquad z_{G_2} = \sum_{i=1}^{8} h = 8h = 2\, z_{G_1}.
+\end{equation}
+We verified this numerically with our implementation (randomly initialised model, $C_4$ and $C_8$ in the same batch): the input of the first fully-connected layer satisfies $z_{G_2} = 2 z_{G_1}$.
+
+The message passing layers cannot tell the two cycles apart locally: like the 1-WL test, they see the same degree everywhere, so every node of $C_4$ looks exactly like every node of $C_8$. Only the sum readout separates the two graphs, and only through their number of nodes. With a mean or max readout, we would get $z_{G_1} = z_{G_2}$, and the model would assign the same prediction to both graphs.
 
 
 %------------------------------------------------
