@@ -45,7 +45,7 @@ def grid(q, k, use_rope):
 plt.rcParams.update({"font.size": 10, "axes.edgecolor": GRID, "axes.labelcolor": INK2,
                      "xtick.color": INK2, "ytick.color": INK2, "text.color": INK})
 # Columns: RoPE heatmap | no-RoPE heatmap | colorbar | total score per delta
-fig, axes = plt.subplots(2, 4, figsize=(15.5, 11), facecolor=SURFACE,
+fig, axes = plt.subplots(len(cases), 4, figsize=(15.5, 5.5 * len(cases)), facecolor=SURFACE,
                          gridspec_kw={"width_ratios": [1, 1, 0.04, 0.75]})
 
 for row, (title, q, k, _) in enumerate(cases):

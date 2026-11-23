@@ -3,14 +3,15 @@
 The RoPE attention score splits into one 2D dot product per channel pair:
     score(delta) = sum_i q_i^T R(delta * theta_i) k_i,   theta_i = base ** (-2i / head_dim),   delta = n - m.
 This script plots each term against the pair index i for a few offsets delta, and the total score against delta,
-for two hand-built (q, k):
+for three hand-built (q, k):
     A. same content (k = q), energy in every pair: fast pairs get scrambled, slow pairs keep matching content;
-    B. a "previous-token" head (k_i = R(theta_i) q_i), energy in fast pairs: all pairs align at delta = -1.
+    B. a "previous-token" head (k_i = R(theta_i) q_i), energy in fast pairs: all pairs align at delta = -1;
+    C. a "distant-token" head (k_i = R(L theta_i) q_i, L = 20), energy in fast pairs: all pairs align at delta = -L.
 
 For comparison, the same figure is drawn without positional encoding (score = sum_i q_i^T k_i): nothing rotates,
 so every delta gives the same terms and the score is flat in delta (it equals the RoPE score at delta = 0).
 
-Things to try: change the deltas in `cases`, the energy profile `amp`, head_dim D or BASE.
+Things to try: change the deltas in `cases`, the energy profile `amp`, the distance L, head_dim D or BASE.
 
 Run from the experiments/ folder, with its own venv:
     uv run python rope_intuition/rope_pair_contrib.py
@@ -63,9 +64,18 @@ qB = rng.normal(size=(P, 2))
 qB = qB / np.linalg.norm(qB, axis=1, keepdims=True) * np.sqrt(amp)[:, None]
 kB = np.stack([rot(theta[j]) @ qB[j] for j in range(P)])
 
+# C: "distant-token" head: same recipe with a head start of L ticks, k_i = R(L theta_i) q_i, so every pair peaks at
+# delta = -L. Energy in fast pairs again: they tell -L from -L +/- 1, and mixing several speeds avoids echoes.
+# (Drawn after A and B so that their random values are unchanged.)
+L = 20
+qC = rng.normal(size=(P, 2))
+qC = qC / np.linalg.norm(qC, axis=1, keepdims=True) * np.sqrt(amp)[:, None]
+kC = np.stack([rot(L * theta[j]) @ qC[j] for j in range(P)])
+
 cases = [
     ("A. Same content (k = q), energy in every pair", qA, kA, [0, -3, -50]),
     ("B. 'Previous-token' head (k_i = R(θ_i) q_i), energy in fast pairs", qB, kB, [-1, -2, -8]),
+    (f"C. 'Distant-token' head (k_i = R({L}·θ_i) q_i), energy in fast pairs", qC, kC, [-L, -L + 1, -L + 6]),
 ]
 
 plt.rcParams.update({"font.size": 10, "axes.edgecolor": GRID, "axes.labelcolor": INK2,
@@ -80,7 +90,7 @@ def total_scores(q, k, use_rope):
 def make_figure(use_rope, ylims=None):
     """The 2x2 figure, with or without RoPE. ylims: per-panel y-limits to reuse, so both figures share scales.
     Without RoPE, the right panels also show the RoPE total as a dashed gray reference."""
-    fig, axes = plt.subplots(2, 2, figsize=(13, 8.5), facecolor=SURFACE,
+    fig, axes = plt.subplots(len(cases), 2, figsize=(13, 4.25 * len(cases)), facecolor=SURFACE,
                              gridspec_kw={"width_ratios": [1.25, 1]})
     term = "q_iᵀ R(Δ·θ_i) k_i" if use_rope else "q_iᵀ k_i"
     for row, (title, q, k, deltas) in enumerate(cases):
@@ -128,7 +138,7 @@ def make_figure(use_rope, ylims=None):
     fig.suptitle(f"{head}: per-pair contributions to the attention score  (head_dim = {D}, base = {BASE:g})",
                  x=0.01, ha="left", fontsize=13, color=INK)
     fig.tight_layout()
-    return fig, [(axes[r][0].get_ylim(), axes[r][1].get_ylim()) for r in range(2)]
+    return fig, [(axes[r][0].get_ylim(), axes[r][1].get_ylim()) for r in range(len(cases))]
 
 
 if __name__ == "__main__":  # rope_heatmap.py imports the setup above without drawing these figures
