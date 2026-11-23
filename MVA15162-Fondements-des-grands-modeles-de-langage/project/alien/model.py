@@ -30,7 +30,11 @@ class ModelConfig:
 
 def rmsnorm(x: torch.Tensor, weight: torch.Tensor, eps: float = 1e-5) -> torch.Tensor:
     """RMSNorm over the last dimension: x / sqrt(mean(x^2) + eps) * weight."""
-    raise NotImplementedError
+    d = x.shape[-1]
+    sum_x2 = (x**2).sum(dim=-1, keepdim=True)
+    denominator = torch.sqrt( 1 / d * sum_x2 + eps)
+    norm = x / denominator * weight
+    return norm
 
 
 def rope(x: torch.Tensor, base: float = 10000.0) -> torch.Tensor:
@@ -41,7 +45,22 @@ def rope(x: torch.Tensor, base: float = 10000.0) -> torch.Tensor:
         y[2i]   = x[2i] cos(t theta_i) - x[2i+1] sin(t theta_i)
         y[2i+1] = x[2i] sin(t theta_i) + x[2i+1] cos(t theta_i)
     """
-    raise NotImplementedError
+
+    head_dim = x.shape[-1]
+    T = x.shape[-2]
+    thetas = torch.arange(0, head_dim, step=2, dtype=x.dtype, device=x.device)
+    thetas = base ** (- thetas / head_dim)
+    position = torch.arange(0, T, dtype=x.dtype, device=x.device)
+    angles = torch.mm(position.unsqueeze(-1), thetas.unsqueeze(0))
+    cos = torch.cos(angles)
+    sin = torch.sin(angles)
+    x_even = x[..., 0::2]
+    x_odd = x[..., 1::2]
+    even = x_even * cos - x_odd * sin
+    odd = x_even * sin + x_odd * cos 
+    stack = torch.stack([even, odd], dim=-1)
+    RoPE = stack.flatten(-2)
+    return RoPE
 
 
 def causal_attention(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, window: int = 0):
@@ -50,7 +69,18 @@ def causal_attention(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, window: 
     Position i attends to the positions j <= i, and, if window > 0, only to those with j > i - window (itself and
     the window - 1 previous positions). Scores are divided by sqrt(head_dim).
     Returns the output, of shape (..., T, head_dim), and the attention weights, of shape (..., T, T)."""
-    raise NotImplementedError
+    
+    head_dim = q.shape[-1]
+    T = q.shape[-2]
+    if window == 0:
+        mask = torch.triu(torch.full((T, T), -torch.inf, device=q.device, dtype=q.dtype), diagonal=1)
+    else:
+        mask = torch.triu(torch.full((T, T), -torch.inf, device=q.device, dtype=q.dtype), diagonal=1) + torch.tril(torch.full((T, T), -torch.inf, device=q.device, dtype=q.dtype), diagonal=-window)
+
+    A = torch.nn.functional.softmax(1 / math.sqrt(head_dim) * torch.matmul(q, torch.transpose(k, -1, -2)) + mask, dim=-1)
+    output = A @ v
+    attention_weights = A 
+    return output, attention_weights
 
 
 class RMSNorm(nn.Module):
@@ -79,7 +109,29 @@ class Attention(nn.Module):
 
     def forward(self, x: torch.Tensor, window: int = 0) -> torch.Tensor:
         """x: (batch, T, d_model) -> (batch, T, d_model)."""
-        raise NotImplementedError
+
+        Q = self.q(x)
+        K = self.k(x)
+        V = self.v(x)
+        B, T, d_model = Q.shape
+        n_heads = self.n_heads
+        head_dim = d_model//n_heads
+        Q = torch.reshape(Q, (B, T, n_heads, head_dim))
+        Q = torch.transpose(Q, 1, 2)
+        K = torch.reshape(K, (B, T, n_heads, head_dim))
+        K = torch.transpose(K, 1, 2)
+        V = torch.reshape(V, (B, T, n_heads, head_dim))
+        V = torch.transpose(V, 1, 2)
+
+        Q = rope(Q, self.rope_base)
+        K = rope(K, self.rope_base)
+
+        attn_out, attn_weights = causal_attention(Q, K, V, window)
+        attn_out = torch.transpose(attn_out, 1, 2)
+        attn_out = torch.reshape(attn_out, (B, T, d_model))
+        out = self.out(attn_out)
+        self.weights = attn_weights.detach()
+        return out
 
 
 class MLP(nn.Module):
@@ -90,7 +142,12 @@ class MLP(nn.Module):
 
     def forward(self, x):
         """down(relu(up(x)))."""
-        raise NotImplementedError
+        up = self.up
+        down = self.down
+
+        x = torch.nn.functional.relu(up(x))
+        out = down(x)
+        return out
 
 
 class Block(nn.Module):
@@ -103,7 +160,14 @@ class Block(nn.Module):
 
     def forward(self, x, window: int = 0):
         """x + attn(norm1(x)), then x + mlp(norm2(x))."""
-        raise NotImplementedError
+        attn = self.attn
+        norm1 = self.norm1
+        norm2 = self.norm2
+        mlp = self.mlp
+
+        x = x + attn(norm1(x), window=window)
+        out = x + mlp(norm2(x))
+        return out
 
 
 class TransformerLM(nn.Module):
@@ -124,8 +188,18 @@ class TransformerLM(nn.Module):
 
         attn_window overrides the window of the config for this call only (None: use cfg.attn_window). This is
         how you cut the attention of a trained model to the last w codons."""
-        raise NotImplementedError
 
+        x = self.embed(idx)
+        if attn_window is not None:
+            for block in self.blocks:
+                x = block(x, attn_window)
+        else:
+            for block in self.blocks:
+                x = block(x, self.cfg.attn_window)
+        x = self.norm(x)
+        logits = self.unembed(x)
+
+        return logits
 
 def count_parameters(model: nn.Module) -> int:
     return sum(p.numel() for p in model.parameters())
