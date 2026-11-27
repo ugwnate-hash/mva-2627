@@ -60,22 +60,72 @@ The two embeddings differ, so this DeepSets model maps $X_1$ and $X_2$ to differ
 
 \section{Question 3}
 
-% TODO
+Yes. Node orderings are arbitrary, so any function of a multiset of nodes inside a GNN must be permutation invariant, which is exactly what DeepSets models. It appears at two levels:
+\begin{itemize}
+    \item \textbf{Neighbourhood aggregation.} Each message passing layer updates $h_v$ from the multiset $\{h_u : u \in \mathcal{N}(v)\}$, which preserves the graph structure. GIN makes the analogy explicit: $h_v \leftarrow \mathrm{MLP}\big((1+\epsilon) h_v + \sum_{u \in \mathcal{N}(v)} h_u\big)$, i.e.\ a sum over the neighbours followed by $\rho = \mathrm{MLP}$.
+    \item \textbf{Readout.} For graph classification, the node embeddings, which already encode the structure, must be pooled into a single graph vector independently of the node ordering. A DeepSets module $\rho\big(\sum_{v \in V} \phi(h_v)\big)$ is a natural readout, and the sum readout followed by an MLP is a special case.
+\end{itemize}
 
 
 \section{Question 4}
 
-% TODO
+Relabelling the nodes with a permutation matrix $P$ maps $(A, X)$ to $(PAP^\top, PX)$.
+
+\paragraph{Encoder.} The message passing layers are permutation \emph{equivariant}: the node embeddings become $PH$. The final sum over the nodes then receives the same multiset of vectors in a different order, so the graph-level output (hence $\mu$, $\log\sigma^2$ and $z$) is \emph{invariant}.
+
+\paragraph{Reconstruction loss.} Each decoder logit is tied to a fixed position $(i, j)$, $i < j$, and the BCE compares it entry-wise with $A_{ij}$. Under a relabelling, the prediction is unchanged (since $z$ is invariant) but the target becomes $PAP^\top$, so the same graph yields different losses: the model is penalised for producing the right graph in another node ordering. An invariant loss would require a minimum over the $n!$ orderings (graph matching), which is intractable; a fixed node ordering is used instead.
+
+\paragraph{BFS ordering.} No. A canonical ordering must give every isomorphic copy of a graph the same adjacency matrix, which is as hard as graph isomorphism. Degree-guided BFS breaks ties between nodes of equal degree by node index (keys $(\deg v, -v)$ and $(-\deg u, u)$), i.e.\ by the arbitrary input labelling. Two isomorphic copies with different labels can thus get different orderings, especially in near-regular graphs such as Watts--Strogatz with low rewiring, where many degrees tie. It only reduces the ordering ambiguity heuristically.
 
 
 \section{Question 5}
 
-% TODO
+Let $P$ be the decoded edge probability matrix. Thresholding sets $\hat{A}_{ij} = \mathbb{1}[P_{ij} > 0.5]$ (deterministic), whereas sampling draws $\hat{A}_{ij} \sim \mathrm{Bernoulli}(P_{ij})$ independently for each pair $i < j$ (stochastic).
+
+\paragraph{Diversity.} Thresholding maps a given $P$ to a single graph, its most likely one; diversity can only come from varying $z$. Bernoulli sampling can produce any of the $2^{n(n-1)/2} = 2^{276}$ adjacency matrices when $0 < P_{ij} < 1$, concentrated around the expected graph, which is what a generative model of $p(G \mid c)$ should do.
+
+\paragraph{Density.} Under sampling, $\mathbb{E}[\hat{A}_{ij}] = P_{ij}$, so the expected number of edges is $\sum_{i<j} P_{ij}$ and a calibrated $P$ preserves the requested density. Thresholding instead yields the fraction of entries above $0.5$, which pushes graphs to the extremes: for our sparse graphs ($\rho \in [0.12, 0.30]$), a calibrated $P$ with $P_{ij} \approx 0.2$ gives an almost empty graph, while entries slightly above $0.5$ all become edges. Thresholding thus systematically misses the density condition. On the other hand, independent Bernoulli edges ignore correlations between edges, so triangles (three edges appearing jointly) may be under-represented, which affects $t(G)$.
+
+
+\section{Task 10: upper-triangular decoder}
+
+The decoder outputs one logit per unordered pair $i < j$, i.e.\ $n(n-1)/2 = 276$ values, which are written at positions $(i, j)$ of a zero matrix and mirrored to $(j, i)$. No logit is ever assigned to a diagonal entry, so $P_{ii} = 0$ by construction and no self-loop can be sampled. Each undirected edge is predicted by a single logit, so $P$ is symmetric by construction: the model cannot give two inconsistent probabilities to $(i, j)$ and $(j, i)$, and the reconstruction loss does not count each edge twice.
+
+
+\section{Task 12: conditional generation results}
+
+One graph is sampled (Bernoulli edges) for each of $100$ held-out test requests, with $\beta = 0.005$. Mean absolute errors, averaged over 3 seeds (13, 14, 15), with the density-matched Erd\H{o}s--R\'enyi baseline ($p = \rho$):
+
+\begin{center}
+\begin{tabular}{l|c|c}
+     & MAE density & MAE triangles/node \\
+    \hline
+    cVAE, $\lambda = 0$    & $0.0199$ & $0.352$ \\
+    cVAE, $\lambda = 0.02$ & $0.0204$ & $\mathbf{0.311}$ \\
+    ER baseline            & $0.0202$ & $0.401$ \\
+\end{tabular}
+\end{center}
+
+Requested vs.\ achieved $(\rho, t)$ for the first five requests (seed 13, $\lambda = 0.02$):
+\begin{center}
+\begin{tabular}{c|c|c}
+    Requested & cVAE & ER baseline \\
+    \hline
+    $(0.145, 0.250)$ & $(0.185, 0.625)$ & $(0.156, 0.417)$ \\
+    $(0.174, 0.708)$ & $(0.170, 0.125)$ & $(0.127, 0.167)$ \\
+    $(0.261, 1.167)$ & $(0.225, 0.792)$ & $(0.290, 2.292)$ \\
+    $(0.217, 0.792)$ & $(0.217, 0.917)$ & $(0.188, 0.500)$ \\
+    $(0.261, 1.375)$ & $(0.221, 1.167)$ & $(0.293, 2.208)$ \\
+\end{tabular}
+\end{center}
+
+\begin{center}
+    \includegraphics[width=0.8\linewidth]{figures/cvae_lambda002_requested_vs_achieved.png}
+\end{center}
+
+Both the cVAE and the baseline match the density equally well (MAE $\approx 0.02$): density is the easy property, and ER with $p = \rho$ matches it in expectation by design. The difference is in the triangles: ER has no separate control over $t(G)$, its expected number of triangles per node is fixed by $p$ alone, $\mathbb{E}[t] = \frac{(n-1)(n-2)}{6} p^3$ (e.g.\ $\approx 1.5$ for $\rho = 0.261$, whatever the requested $t$), whereas the cVAE reduces the triangle MAE by about $12\%$ ($\lambda = 0$) and $22\%$ ($\lambda = 0.02$). The property loss consistently lowers the triangle error (on all three seeds) at no cost in density. The errors remain substantial, as expected from Q5: a single Bernoulli sample with independent edges only matches the requested properties in expectation.
 
 
 %------------------------------------------------
-
-\bibliographystyle{plain}
-\bibliography{references} % citation records are in the references.bib document
 
 \end{document}

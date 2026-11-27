@@ -34,7 +34,10 @@ def graph_properties(G):
     """Density, triangles per node. Both are continuous targets."""
     # TASK 8: Compute the density and number of triangles per node.
     # Return a float32 NumPy array with shape (2,).
-    raise NotImplementedError("Task 8: graph_properties")
+    n = G.number_of_nodes()
+    density = nx.density(G)                                  # 2|E| / (n(n-1))
+    n_triangles = sum(nx.triangles(G).values()) / 3          # each triangle is counted at its 3 nodes
+    return np.array([density, n_triangles / n], dtype=np.float32)
 
 
 def make_graph(kind, rng):

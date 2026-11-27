@@ -222,7 +222,24 @@ def train(args):
     #           seed=args.seed + 3, max_examples=n_show)
     # This shows each held-out reference graph above a new sampled graph,
     # with requested and achieved properties in the title.
-    raise NotImplementedError("Task 12: evaluate conditional generation")
+    chosen = test[:args.samples]                                    # held-out requests (test split)
+    requested = C[chosen]                                           # raw [density, triangles/node]
+    cond_req = torch.tensor((requested - c_mean) / c_std, dtype=torch.float32, device=device)
+    generated = net.sample(cond_req).cpu().numpy()                  # Bernoulli edge sampling
+    actual = np.stack([graph_properties(nx.from_numpy_array(a)) for a in generated])
+    # Density-matched Erdos-Renyi baseline: p = requested density.
+    rng = np.random.default_rng(args.seed)
+    baseline = np.stack([graph_properties(nx.gnp_random_graph(N_NODES, float(r[0]),
+                                                                seed=int(rng.integers(2**31 - 1))))
+                         for r in requested])
+    mae_model = np.abs(actual - requested).mean(0)
+    mae_base = np.abs(baseline - requested).mean(0)
+    print(f'{len(chosen)} held-out requests (property_weight={args.property_weight})')
+    print(f'cVAE     MAE: density {mae_model[0]:.4f}, triangles/node {mae_model[1]:.4f}')
+    print(f'ER base  MAE: density {mae_base[0]:.4f}, triangles/node {mae_base[1]:.4f}')
+    print('requested (density, tri/node) -> cVAE achieved | ER baseline')
+    for r, a, b in list(zip(requested, actual, baseline))[:5]:
+        print(f'  ({r[0]:.3f}, {r[1]:.3f}) -> ({a[0]:.3f}, {a[1]:.3f}) | ({b[0]:.3f}, {b[1]:.3f})')
 
     # Visualize generated graphs
     results_file = f'{args.output_prefix}_results.npz'

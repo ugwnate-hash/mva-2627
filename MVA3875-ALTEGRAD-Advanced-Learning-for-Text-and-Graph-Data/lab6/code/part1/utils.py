@@ -48,6 +48,3 @@ def create_test_dataset():
         X_test.append(np.array(card_list))
 
     return X_test, y_test
-
-print(len(create_test_dataset()[0][1]))
-print(len((create_train_dataset()[1])))
