@@ -16,11 +16,15 @@ class DeepSets(nn.Module):
     def forward(self, x):
         
         ############## Task 3
-    
+
         ##################
         # your code here #
         ##################
-        
+        x = self.embedding(x)          
+        x = self.tanh(self.fc1(x))     
+        x = torch.sum(x, dim=1)        
+        x = self.fc2(x)                
+
         return x.squeeze()
 
 
@@ -35,9 +39,12 @@ class LSTM(nn.Module):
     def forward(self, x):
         
         ############## Task 4
-    
+
         ##################
         # your code here #
         ##################
-        
+        x = self.embedding(x)          # (B, M) -> (B, M, h1)
+        _, (h, _) = self.lstm(x)       # h: (1, B, h2), hidden state at the last time step
+        x = self.fc(h[-1])             # (B, h2) -> (B, 1)
+
         return x.squeeze()

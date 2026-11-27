@@ -1,0 +1,81 @@
+\documentclass[a4paper]{article}
+\input{style/head.tex}
+
+%-------------------------------
+%	TITLE VARIABLES (identify your work!)
+%-------------------------------
+
+\newcommand{\yourname}{Nathan Ugwonali} % replace YOURNAME with your name
+\newcommand{\youremail}{nathan.ugwonali@ens-paris-saclay.fr} % replace YOUREMAIL with your email
+\newcommand{\assignmentnumber}{6} % replace X with the lab session number
+
+\begin{document}
+
+%-------------------------------
+%	TITLE SECTION (do not modify unless you really need to)
+%-------------------------------
+\input{style/header.tex}
+
+%-------------------------------
+%	ASSIGNMENT CONTENT (add your responses)
+%-------------------------------
+
+\section{Question 1}
+
+\paragraph{Setting.} Let $E \in \mathbb{R}^{11 \times h_1}$ be the embedding table (row $E_d$ for digit $d \in \{0, \dots, 10\}$, where $0$ is the padding symbol), $W_1 \in \mathbb{R}^{h_2 \times h_1}$, $b_1 \in \mathbb{R}^{h_2}$ the parameters of the first fully-connected layer, and $w_2 \in \mathbb{R}^{h_2}$, $b_2 \in \mathbb{R}$ those of the output layer. The model computes
+\begin{equation}
+    \phi(d) = \tanh(W_1 E_d + b_1), \qquad f(X) = w_2^\top \sum_{x \in X} \phi(x) + b_2 ,
+\end{equation}
+and we want $f(X) = \sum_{x \in X} x$ for every multiset $X$, padded or not.
+
+\paragraph{Optimal parameters.} Since $\rho$ is a single affine layer, the sum must already be encoded linearly in $\sum_x \phi(x)$, so $\phi$ must be \emph{linear} in the digit: $\phi(d) \propto d$. It cannot be the identity, because $\tanh$ takes values in $(-1, 1)$, so we scale the digits by a constant $c > 10$ (e.g.\ $c = 11$) so that $d/c \in [0, 1)$ for every $d \in \{0, \dots, 10\}$. Using a single coordinate $k$ of the hidden layer, the expected solution is
+\begin{align}
+    &\text{fc1:} && b_{1,k} = 0, \quad (W_1)_{k,:}\, E_d = \tanh^{-1}\!\Big(\frac{d}{c}\Big) \ \ \forall d \in \{0, \dots, 10\}
+        \quad\Longrightarrow\quad \phi(d)_k = \frac{d}{c}, \label{eq:phi}\\
+    &\text{fc2:} && w_2 = c\, e_k \ \ (\text{weight } c \text{ on coordinate } k, \ 0 \text{ elsewhere}), \qquad b_2 = 0 .
+\end{align}
+The embedding is a free lookup table, so it can absorb the nonlinearity: it stores $\tanh^{-1}(d/c)$ along the direction $(W_1)_{k,:}$, which the $\tanh$ maps back to $d/c$. In particular, $d = 0$ gives $E_0 = 0$ (or any vector orthogonal to $(W_1)_{k,:}$), hence $\phi(0)_k = 0$. Then
+\begin{equation}
+    f(X) = c \sum_{x \in X} \phi(x)_k + 0 = c \sum_{x \in X} \frac{x}{c} = \sum_{x \in X} x .
+\end{equation}
+The other coordinates of $\phi$ are arbitrary, since $w_2$ gives them weight $0$.
+
+\paragraph{Why these constraints.}
+\begin{itemize}
+    \item \textbf{Strict scaling ($c > 10$).} $\tanh^{-1}$ is only defined on $(-1, 1)$: with $c = 10$, the digit $10$ would require $\tanh^{-1}(1) = +\infty$.
+    \item \textbf{No offset in $\phi$.} An affine encoding $\phi(d)_k = \alpha d + \beta$ with $\beta \neq 0$ (e.g.\ mapping $\{1, \dots, 10\}$ onto $[-1, 1]$) gives $\sum_{x \in X} \phi(x)_k = \alpha S + \beta\, |X|$ with $S = \sum_{x \in X} x$, which depends on the cardinality $|X|$; a fixed $\rho$ cannot remove this term since it does not know $|X|$.
+    \item \textbf{$\phi(0) = 0$ on coordinate $k$.} Padding zeros must not contribute to the sum.
+    \item \textbf{$b_2 = 0$.} The bias of $\rho$ is added once, after the sum; any nonzero value shifts every prediction.
+\end{itemize}
+
+\section{Question 2}
+
+Both sets have the same sum, $[0.4, -0.2]^\top$, so no linear $\phi(x) = Wx + b$ can separate them: $\sum_{x} \phi(x) = W \sum_x x + 2b$ is identical for $X_1$ and $X_2$. A nonlinearity in $\phi$ is required. Take $\phi(x) = \mathrm{ReLU}(Wx + b)$ with $W = I$, $b = 0$, and $\rho$ the identity ($W_\rho = I$, $b_\rho = 0$):
+\begin{align}
+    X_1 &: \ \phi([1.2, -0.7]^\top) + \phi([-0.8, 0.5]^\top) = [1.2, 0]^\top + [0, 0.5]^\top = [1.2, 0.5]^\top, \\
+    X_2 &: \ \phi([0.2, -0.3]^\top) + \phi([0.2, 0.1]^\top) = [0.2, 0]^\top + [0.2, 0.1]^\top = [0.4, 0.1]^\top .
+\end{align}
+The two embeddings differ, so this DeepSets model maps $X_1$ and $X_2$ to different vectors.
+
+
+\section{Question 3}
+
+% TODO
+
+
+\section{Question 4}
+
+% TODO
+
+
+\section{Question 5}
+
+% TODO
+
+
+%------------------------------------------------
+
+\bibliographystyle{plain}
+\bibliography{references} % citation records are in the references.bib document
+
+\end{document}

@@ -51,20 +51,26 @@ for i in range(len(cards)):
         ##################
         # your code here #
         ##################
+        x_batch = torch.LongTensor(X_test[i][j:min(j+batch_size, n_samples_per_card)]).to(device)
+        with torch.no_grad():
+            y_pred_deepsets.append(deepsets(x_batch))
+            y_pred_lstm.append(lstm(x_batch))
         
+    y_true = np.array(y_test[i])
+
     y_pred_deepsets = torch.cat(y_pred_deepsets)
     y_pred_deepsets = y_pred_deepsets.detach().cpu().numpy()
     
-    acc_deepsets = #your code here
-    mae_deepsets = #your code here
+    acc_deepsets = accuracy_score(y_true, np.round(y_pred_deepsets))
+    mae_deepsets = mean_absolute_error(y_true, y_pred_deepsets)
     results['deepsets']['acc'].append(acc_deepsets)
     results['deepsets']['mae'].append(mae_deepsets)
     
     y_pred_lstm = torch.cat(y_pred_lstm)
     y_pred_lstm = y_pred_lstm.detach().cpu().numpy()
     
-    acc_lstm = #your code here
-    mae_lstm = #your code here
+    acc_lstm = accuracy_score(y_true, np.round(y_pred_lstm))
+    mae_lstm = mean_absolute_error(y_true, y_pred_lstm)
     results['lstm']['acc'].append(acc_lstm)
     results['lstm']['mae'].append(mae_lstm)
 
@@ -74,3 +80,14 @@ for i in range(len(cards)):
 ##################
 # your code here #
 ##################
+plt.figure(figsize=(7, 4))
+plt.plot(cards, results['deepsets']['acc'], marker='o', label='DeepSets')
+plt.plot(cards, results['lstm']['acc'], marker='s', label='LSTM')
+plt.xlabel('Cardinality of the input sets')
+plt.ylabel('Accuracy')
+plt.title('Test accuracy vs. set cardinality')
+plt.grid(alpha=0.3)
+plt.legend()
+plt.tight_layout()
+plt.savefig('accuracy_vs_cardinality.png', dpi=150)
+plt.show()

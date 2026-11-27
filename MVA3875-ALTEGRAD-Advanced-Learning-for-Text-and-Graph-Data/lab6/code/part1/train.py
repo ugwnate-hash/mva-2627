@@ -47,6 +47,8 @@ for epoch in range(epochs):
         ##################
         # your code here #
         ##################
+        x_batch = torch.LongTensor(X_train[idx[i:min(i+batch_size, n_train)]]).to(device)
+        y_batch = torch.FloatTensor(y_train[idx[i:min(i+batch_size, n_train)]]).to(device)
         
         optimizer.zero_grad()
         output = deepsets(x_batch)
@@ -89,6 +91,8 @@ for epoch in range(epochs):
         ##################
         # your code here #
         ##################
+        x_batch = torch.LongTensor(X_train[idx[i:min(i+batch_size, n_train)]]).to(device)
+        y_batch = torch.FloatTensor(y_train[idx[i:min(i+batch_size, n_train)]]).to(device)
         
         optimizer.zero_grad()
         output = lstm(x_batch)
